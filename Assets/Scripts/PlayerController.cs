@@ -61,7 +61,10 @@ public class PlayerController : MonoBehaviour
         }
         winTextObject.gameObject.GetComponent<TextMeshProUGUI>().text = YOU_WIN_TEXT;
         winTextObject.SetActive(true);
-        Destroy(GameObject.FindGameObjectWithTag(ENEMY_TAG));
+        foreach (var enemy in GameObject.FindGameObjectsWithTag(ENEMY_TAG))
+        {
+            Destroy(enemy);
+        }
     }
 
     // FixedUpdate is called once per fixed frame-rate frame.
