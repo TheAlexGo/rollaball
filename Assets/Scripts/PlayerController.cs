@@ -1,11 +1,17 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using TMPro;
 
 public class PlayerController : MonoBehaviour
 {
     public float speed;
+    public TextMeshProUGUI countText;
+    public GameObject winTextObject;
 
     private Rigidbody rb;
+    private int count;
+    private int pickUpCount;
+    
     private float movementX;
     private float movementY;
 
@@ -13,6 +19,10 @@ public class PlayerController : MonoBehaviour
     private void Start()
     {
         rb = GetComponent<Rigidbody>();
+        count = 0;
+        SetCountText();
+        winTextObject.SetActive(false);
+        pickUpCount = GameObject.FindGameObjectsWithTag("PickUp").Length;
     }
 
     // This function is called when a move input is detected.
@@ -21,6 +31,16 @@ public class PlayerController : MonoBehaviour
         var movementVector = movementValue.Get<Vector2>();
         movementX = movementVector.x;
         movementY = movementVector.y;
+    }
+
+    private void SetCountText()
+    {
+        countText.text = $"Count: {count}";
+
+        if (count == pickUpCount)
+        {
+            winTextObject.SetActive(true);
+        }
     }
 
     // FixedUpdate is called once per fixed frame-rate frame.
@@ -32,9 +52,12 @@ public class PlayerController : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.CompareTag("PickUp"))
+        if (!other.gameObject.CompareTag("PickUp"))
         {
-            other.gameObject.SetActive(false);
+            return;
         }
+        other.gameObject.SetActive(false);
+        count++;
+        SetCountText();
     }
 }
