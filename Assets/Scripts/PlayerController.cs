@@ -8,6 +8,13 @@ public class PlayerController : MonoBehaviour
     public TextMeshProUGUI countText;
     public GameObject winTextObject;
 
+    private const string PICK_UP_TAG = "PickUp";
+    private const string ENEMY_TAG = "Enemy";
+
+    private const string COUNT_TEXT = "Очки";
+    private const string YOU_WIN_TEXT = "Вы выиграли!";
+    private const string YOU_LOSE_TEXT = "Вы проиграли!";
+
     private Rigidbody rb;
     private int count;
     private int pickUpCount;
@@ -20,9 +27,9 @@ public class PlayerController : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
         count = 0;
-        SetCountText();
         winTextObject.SetActive(false);
-        pickUpCount = GameObject.FindGameObjectsWithTag("PickUp").Length;
+        pickUpCount = GameObject.FindGameObjectsWithTag(PICK_UP_TAG).Length;
+        SetCountText();
     }
 
     // This function is called when a move input is detected.
@@ -33,14 +40,28 @@ public class PlayerController : MonoBehaviour
         movementY = movementVector.y;
     }
 
+    private void OnCollisionEnter(Collision other)
+    {
+        if (!other.gameObject.CompareTag(ENEMY_TAG))
+        {
+            return;
+        }
+        Destroy(gameObject);
+        winTextObject.gameObject.GetComponent<TextMeshProUGUI>().text = YOU_LOSE_TEXT;
+        winTextObject.gameObject.SetActive(true);
+    }
+
     private void SetCountText()
     {
-        countText.text = $"Count: {count}";
+        countText.text = $"{COUNT_TEXT}: {count}";
 
-        if (count == pickUpCount)
+        if (count < pickUpCount)
         {
-            winTextObject.SetActive(true);
+            return;
         }
+        winTextObject.gameObject.GetComponent<TextMeshProUGUI>().text = YOU_WIN_TEXT;
+        winTextObject.SetActive(true);
+        Destroy(GameObject.FindGameObjectWithTag(ENEMY_TAG));
     }
 
     // FixedUpdate is called once per fixed frame-rate frame.
@@ -52,7 +73,7 @@ public class PlayerController : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (!other.gameObject.CompareTag("PickUp"))
+        if (!other.gameObject.CompareTag(PICK_UP_TAG))
         {
             return;
         }
